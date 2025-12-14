@@ -20,15 +20,6 @@ const siteTitle = document.getElementById('site-title');
 let lastSubmission = 0;
 const MIN_INTERVAL = 1000; // 1초 제한
 
-// 단어-이미지 매핑
-const wordImages = {
-    sun: "https://images.unsplash.com/photo-1501973801540-537f08ccae7c",
-    moon: "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-    tree: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    cat: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131"
-    // 필요한 단어 추가 가능
-};
-
 // 엔터키 제출
 input.addEventListener('keydown', e => {
     if (e.key === 'Enter') submitWord();
@@ -50,14 +41,6 @@ function submitWord() {
     input.value = '';
 }
 
-// 배경 이미지 안정적으로 설정
-function setBackgroundImage(url){
-    const img = new Image();
-    img.src = url;
-    img.onload = () => { document.body.style.backgroundImage = `url('${url}')`; }
-    img.onerror = () => { document.body.style.backgroundImage = "none"; }
-}
-
 // 실시간 랭킹 업데이트
 db.ref('words').on('value', snapshot => {
     const data = snapshot.val() || {};
@@ -74,11 +57,5 @@ db.ref('words').on('value', snapshot => {
     if(entries.length > 0){
         const topWord = entries[0][0];
         siteTitle.textContent = topWord;
-
-        if(wordImages[topWord]){
-            setBackgroundImage(wordImages[topWord]);
-        } else {
-            document.body.style.backgroundImage = "none";
-        }
     }
 });

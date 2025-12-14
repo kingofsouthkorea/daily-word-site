@@ -2,29 +2,14 @@ body {
     font-family: Arial, sans-serif;
     color: white;
     text-align: center;
-    transition: background-image 0.5s ease-in-out;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-color: #333; /* 기본 배경색 */
     min-height: 100vh;
-    position: relative;
     margin: 0;
+    padding: 20px;
 }
 
-/* 제목과 부제목 항상 앞에 표시 */
 #site-title, #subtitle {
     position: relative;
-    z-index: 2;
-}
-
-/* 배경 오버레이로 글자 대비 강화 */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.4);
-    z-index: 1;
 }
 
 #subtitle {
