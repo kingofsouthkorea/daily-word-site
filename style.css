@@ -1,11 +1,7 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
   background: #0f172a;
   color: #e5e7eb;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  font-family: system-ui;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,16 +9,21 @@ body {
 }
 
 h1 {
-  margin-bottom: 20px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: #9ca3af;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 input {
   width: 280px;
   padding: 12px;
-  font-size: 16px;
   border-radius: 8px;
   border: none;
-  outline: none;
   background: #1e293b;
   color: white;
   margin-bottom: 30px;
@@ -39,4 +40,10 @@ li {
   background: #020617;
   margin-bottom: 8px;
   border-radius: 6px;
+}
+
+#visitorCount {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #9ca3af;
 }

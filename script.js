@@ -14,7 +14,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* 🔥 본인 Firebase 설정 */
+/* 🔥 Firebase 설정 */
 const firebaseConfig = {
   apiKey: "AIzaSyD3NibqQIrgnmlez1s0WhUZ-H4b8YpnPSY",
   authDomain: "daily-word-site-6402f.firebaseapp.com",
@@ -27,11 +27,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* 🚫 욕설 / 스팸 필터 (기본) */
+const bannedWords = ["fuck", "shit", "시발", "병신", "좆", "섹스"];
+
 /* ⏱ 1초 제한 */
 let lastSubmitTime = 0;
 
-/* 엔터키 제출 */
-document.getElementById("wordInput").addEventListener("keydown", (e) => {
+/* Enter 제출 */
+document.getElementById("wordInput").addEventListener("keydown", e => {
   if (e.key === "Enter") submitWord();
 });
 
@@ -42,6 +45,11 @@ async function submitWord() {
   const input = document.getElementById("wordInput");
   let word = input.value.trim().toLowerCase();
   if (!word) return;
+
+  if (bannedWords.some(bad => word.includes(bad))) {
+    alert("부적절한 단어는 사용할 수 없습니다.");
+    return;
+  }
 
   lastSubmitTime = now;
   input.value = "";
@@ -63,22 +71,18 @@ async function submitWord() {
   }
 }
 
-/* 🔥 실시간 랭킹 + 제목 변경 */
-const q = query(
-  collection(db, "rankings"),
-  orderBy("count", "desc"),
-  limit(10)
-);
+/* 🔥 실시간 랭킹 + 제목 반영 */
+const q = query(collection(db, "rankings"), orderBy("count", "desc"), limit(10));
 
-onSnapshot(q, (snapshot) => {
+onSnapshot(q, snapshot => {
   const list = document.getElementById("rankingList");
-  const h1 = document.getElementById("title");
+  const title = document.getElementById("title");
 
   list.innerHTML = "";
-  let rank = 1;
   let topWord = "Live Word";
+  let rank = 1;
 
-  snapshot.forEach((doc) => {
+  snapshot.forEach(doc => {
     const data = doc.data();
     if (rank === 1) topWord = data.word;
 
@@ -88,6 +92,17 @@ onSnapshot(q, (snapshot) => {
     rank++;
   });
 
-  h1.textContent = `🔥 ${topWord}`;
-  document.title = `🔥 ${topWord}`;
+  title.textContent = topWord;
+  document.title = topWord;
+});
+
+/* 👥 방문자 수 */
+const visitorRef = doc(db, "meta", "visitors");
+setDoc(visitorRef, { count: increment(1) }, { merge: true });
+
+onSnapshot(visitorRef, snap => {
+  if (snap.exists()) {
+    document.getElementById("visitorCount").textContent =
+      `Visitors: ${snap.data().count}`;
+  }
 });

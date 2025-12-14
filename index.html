@@ -2,13 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Live Word Ranking</title>
+  <title>Live Word</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Google AdSense (승인 후 client-id 교체) -->
+  <script async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXX"
+    crossorigin="anonymous"></script>
 </head>
 <body>
 
-  <h1 id="title">🔥 Live Word</h1>
+  <h1 id="title">Live Word</h1>
+  <p class="subtitle">
+    당신의 단어가 사이트의 제목이 됩니다!<br />
+    Your word becomes the title of the site!
+  </p>
 
   <input
     id="wordInput"
@@ -17,6 +26,8 @@
   />
 
   <ul id="rankingList"></ul>
+
+  <div id="visitorCount">Visitors: 0</div>
 
   <script type="module" src="script.js"></script>
 </body>
