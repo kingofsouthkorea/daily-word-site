@@ -1,138 +1,93 @@
-/**********************************************************
- * Daily Word Site – FINAL script.js
- * 기능:
- * - 엔터키 제출
- * - 1초당 1회 입력 제한
- * - 단어 누적 랭킹
- * - 실시간 1위 단어 → h1 + 브라우저 제목
- * - 날짜 변경 시 "n월 n일의 단어 : 1위" 기록
- **********************************************************/
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  increment,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ===== 상수 ===== */
-const LIMIT_TIME = 1 * 1000; // 1초 제한
-const LAST_SUBMIT_KEY = "lastSubmitTime";
-const WORD_COUNTS_KEY = "wordCounts";
-const HISTORY_KEY = "dailyHistory";
-const LAST_DATE_KEY = "lastDate";
+/* 🔥 본인 Firebase 설정 */
+const firebaseConfig = {
+  apiKey: "AIzaSyD3NibqQIrgnmlez1s0WhUZ-H4b8YpnPSY",
+  authDomain: "daily-word-site-6402f.firebaseapp.com",
+  projectId: "daily-word-site-6402f",
+  storageBucket: "daily-word-site-6402f.firebasestorage.app",
+  messagingSenderId: "144399874318",
+  appId: "1:144399874318:web:0e278d40b251952dc67f5f"
+};
 
-/* ===== DOM ===== */
-const form = document.getElementById("wordForm");
-const input = document.getElementById("wordInput");
-const feedback = document.getElementById("feedback");
-const wordEl = document.getElementById("todayWord");
-const rankingEl = document.getElementById("ranking");
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-/* ===== 날짜 ===== */
-function getTodayString() {
-  const d = new Date();
-  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
-}
+/* ⏱ 1초 제한 */
+let lastSubmitTime = 0;
 
-/* ===== 날짜 변경 감지 ===== */
-function checkDateChange() {
-  const today = getTodayString();
-  const lastDate = localStorage.getItem(LAST_DATE_KEY);
-
-  if (lastDate && lastDate !== today) {
-    saveDailyHistory(lastDate);
-  }
-
-  localStorage.setItem(LAST_DATE_KEY, today);
-}
-
-/* ===== 날짜 기록 ===== */
-function saveDailyHistory(date) {
-  const history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-  const ranking = getRanking();
-
-  if (ranking.length === 0) return;
-
-  history.push({
-    date: date,
-    topWord: ranking[0].word,
-    count: ranking[0].count,
-  });
-
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-}
-
-/* ===== 단어 데이터 ===== */
-function getWordData() {
-  return JSON.parse(localStorage.getItem(WORD_COUNTS_KEY)) || {};
-}
-
-function saveWordData(data) {
-  localStorage.setItem(WORD_COUNTS_KEY, JSON.stringify(data));
-}
-
-function addWord(word) {
-  const data = getWordData();
-  data[word] = (data[word] || 0) + 1;
-  saveWordData(data);
-}
-
-/* ===== 랭킹 계산 ===== */
-function getRanking() {
-  const data = getWordData();
-  return Object.entries(data)
-    .map(([word, count]) => ({ word, count }))
-    .sort((a, b) => b.count - a.count);
-}
-
-/* ===== 화면 렌더링 ===== */
-function render() {
-  const ranking = getRanking();
-  if (ranking.length === 0) return;
-
-  // 1위 단어
-  const topWord = ranking[0].word;
-  wordEl.textContent = topWord;
-
-  // 제목 변경
-  document.title = topWord;
-  document.querySelector("h1").textContent = topWord;
-
-  // 애니메이션
-  wordEl.classList.remove("animate");
-  void wordEl.offsetWidth;
-  wordEl.classList.add("animate");
-
-  // 랭킹 표시
-  rankingEl.innerHTML = "";
-  ranking.slice(0, 5).forEach((item, index) => {
-    const li = document.createElement("li");
-    li.textContent = `${index + 1}위 · ${item.word} (${item.count})`;
-    rankingEl.appendChild(li);
-  });
-}
-
-/* ===== 제출 처리 ===== */
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const word = input.value.trim();
-  if (!word) return;
-
-  const now = Date.now();
-  const lastTime = localStorage.getItem(LAST_SUBMIT_KEY);
-
-  if (lastTime && now - lastTime < LIMIT_TIME) {
-    const remain = Math.ceil((LIMIT_TIME - (now - lastTime)) / 1000);
-    feedback.textContent = `⏳ ${remain}초 후 다시 입력하세요`;
-    return;
-  }
-
-  localStorage.setItem(LAST_SUBMIT_KEY, now);
-  addWord(word);
-  render();
-
-  feedback.textContent = "단어가 반영되었습니다";
-  input.value = "";
-  input.focus();
+/* 엔터키 제출 */
+document.getElementById("wordInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") submitWord();
 });
 
-/* ===== 초기 실행 ===== */
-checkDateChange();
-render();
+async function submitWord() {
+  const now = Date.now();
+  if (now - lastSubmitTime < 1000) return;
 
-console.log("✅ FINAL script.js LOADED");
+  const input = document.getElementById("wordInput");
+  let word = input.value.trim().toLowerCase();
+  if (!word) return;
+
+  lastSubmitTime = now;
+  input.value = "";
+
+  const ref = doc(db, "rankings", word);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    await updateDoc(ref, {
+      count: increment(1),
+      updatedAt: serverTimestamp()
+    });
+  } else {
+    await setDoc(ref, {
+      word,
+      count: 1,
+      updatedAt: serverTimestamp()
+    });
+  }
+}
+
+/* 🔥 실시간 랭킹 + 제목 변경 */
+const q = query(
+  collection(db, "rankings"),
+  orderBy("count", "desc"),
+  limit(10)
+);
+
+onSnapshot(q, (snapshot) => {
+  const list = document.getElementById("rankingList");
+  const h1 = document.getElementById("title");
+
+  list.innerHTML = "";
+  let rank = 1;
+  let topWord = "Live Word";
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (rank === 1) topWord = data.word;
+
+    const li = document.createElement("li");
+    li.textContent = `${rank}. ${data.word} (${data.count})`;
+    list.appendChild(li);
+    rank++;
+  });
+
+  h1.textContent = `🔥 ${topWord}`;
+  document.title = `🔥 ${topWord}`;
+});
