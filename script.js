@@ -2,14 +2,14 @@
  * Daily Word Site – FINAL script.js
  * 기능:
  * - 엔터키 제출
- * - 3초당 1회 입력 제한
+ * - 1초당 1회 입력 제한
  * - 단어 누적 랭킹
  * - 실시간 1위 단어 → h1 + 브라우저 제목
  * - 날짜 변경 시 "n월 n일의 단어 : 1위" 기록
  **********************************************************/
 
 /* ===== 상수 ===== */
-const LIMIT_TIME = 3 * 1000; // 3초 제한
+const LIMIT_TIME = 1 * 1000; // 1초 제한
 const LAST_SUBMIT_KEY = "lastSubmitTime";
 const WORD_COUNTS_KEY = "wordCounts";
 const HISTORY_KEY = "dailyHistory";
