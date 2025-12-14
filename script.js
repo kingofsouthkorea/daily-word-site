@@ -1,5 +1,15 @@
-/* ===== 기본 설정 ===== */
-const LIMIT_TIME = 3 * 1000;
+/**********************************************************
+ * Daily Word Site – FINAL script.js
+ * 기능:
+ * - 엔터키 제출
+ * - 3초당 1회 입력 제한
+ * - 단어 누적 랭킹
+ * - 실시간 1위 단어 → h1 + 브라우저 제목
+ * - 날짜 변경 시 "n월 n일의 단어 : 1위" 기록
+ **********************************************************/
+
+/* ===== 상수 ===== */
+const LIMIT_TIME = 3 * 1000; // 3초 제한
 const LAST_SUBMIT_KEY = "lastSubmitTime";
 const WORD_COUNTS_KEY = "wordCounts";
 const HISTORY_KEY = "dailyHistory";
@@ -12,15 +22,15 @@ const feedback = document.getElementById("feedback");
 const wordEl = document.getElementById("todayWord");
 const rankingEl = document.getElementById("ranking");
 
-/* ===== 오늘 날짜 ===== */
-function getToday() {
+/* ===== 날짜 ===== */
+function getTodayString() {
   const d = new Date();
   return `${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
 /* ===== 날짜 변경 감지 ===== */
 function checkDateChange() {
-  const today = getToday();
+  const today = getTodayString();
   const lastDate = localStorage.getItem(LAST_DATE_KEY);
 
   if (lastDate && lastDate !== today) {
@@ -30,52 +40,68 @@ function checkDateChange() {
   localStorage.setItem(LAST_DATE_KEY, today);
 }
 
-/* ===== 기록 저장 ===== */
+/* ===== 날짜 기록 ===== */
 function saveDailyHistory(date) {
   const history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-  const counts = getWordCounts();
+  const ranking = getRanking();
 
-  if (counts.length === 0) return;
+  if (ranking.length === 0) return;
 
   history.push({
-    date,
-    topWord: counts[0].word,
+    date: date,
+    topWord: ranking[0].word,
+    count: ranking[0].count,
   });
 
   localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
 }
 
-/* ===== 단어 카운트 ===== */
-function getWordCounts() {
-  const data = JSON.parse(localStorage.getItem(WORD_COUNTS_KEY)) || {};
+/* ===== 단어 데이터 ===== */
+function getWordData() {
+  return JSON.parse(localStorage.getItem(WORD_COUNTS_KEY)) || {};
+}
+
+function saveWordData(data) {
+  localStorage.setItem(WORD_COUNTS_KEY, JSON.stringify(data));
+}
+
+function addWord(word) {
+  const data = getWordData();
+  data[word] = (data[word] || 0) + 1;
+  saveWordData(data);
+}
+
+/* ===== 랭킹 계산 ===== */
+function getRanking() {
+  const data = getWordData();
   return Object.entries(data)
     .map(([word, count]) => ({ word, count }))
     .sort((a, b) => b.count - a.count);
 }
 
-function addWord(word) {
-  const data = JSON.parse(localStorage.getItem(WORD_COUNTS_KEY)) || {};
-  data[word] = (data[word] || 0) + 1;
-  localStorage.setItem(WORD_COUNTS_KEY, JSON.stringify(data));
-}
-
-/* ===== 화면 갱신 ===== */
+/* ===== 화면 렌더링 ===== */
 function render() {
-  const counts = getWordCounts();
-
-  if (counts.length === 0) return;
+  const ranking = getRanking();
+  if (ranking.length === 0) return;
 
   // 1위 단어
-  const top = counts[0].word;
-  wordEl.textContent = top;
-  document.title = top;
-  document.querySelector("h1").textContent = top;
+  const topWord = ranking[0].word;
+  wordEl.textContent = topWord;
+
+  // 제목 변경
+  document.title = topWord;
+  document.querySelector("h1").textContent = topWord;
+
+  // 애니메이션
+  wordEl.classList.remove("animate");
+  void wordEl.offsetWidth;
+  wordEl.classList.add("animate");
 
   // 랭킹 표시
   rankingEl.innerHTML = "";
-  counts.slice(0, 5).forEach((item, i) => {
+  ranking.slice(0, 5).forEach((item, index) => {
     const li = document.createElement("li");
-    li.textContent = `${i + 1}위 · ${item.word} (${item.count})`;
+    li.textContent = `${index + 1}위 · ${item.word} (${item.count})`;
     rankingEl.appendChild(li);
   });
 }
@@ -91,7 +117,8 @@ form.addEventListener("submit", (e) => {
   const lastTime = localStorage.getItem(LAST_SUBMIT_KEY);
 
   if (lastTime && now - lastTime < LIMIT_TIME) {
-    feedback.textContent = "⏳ 3초 후 다시 입력하세요";
+    const remain = Math.ceil((LIMIT_TIME - (now - lastTime)) / 1000);
+    feedback.textContent = `⏳ ${remain}초 후 다시 입력하세요`;
     return;
   }
 
@@ -101,8 +128,11 @@ form.addEventListener("submit", (e) => {
 
   feedback.textContent = "단어가 반영되었습니다";
   input.value = "";
+  input.focus();
 });
 
 /* ===== 초기 실행 ===== */
 checkDateChange();
 render();
+
+console.log("✅ FINAL script.js LOADED");
