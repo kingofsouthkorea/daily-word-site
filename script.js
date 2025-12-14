@@ -1,70 +1,81 @@
-// Firebase 설정
-const firebaseConfig = {
-  apiKey: "AIzaSyD3NibqQIrgnmlez1s0WhUZ-H4b8YpnPSY",
-  authDomain: "daily-word-site-6402f.firebaseapp.com",
-  projectId: "daily-word-site-6402f",
-  storageBucket: "daily-word-site-6402f.firebasestorage.app",
-  messagingSenderId: "144399874318",
-  appId: "1:144399874318:web:0e278d40b251952dc67f5f"
-};
+// ===== 날짜 표시 =====
+document.getElementById("date").textContent =
+  new Date().toLocaleDateString("ko-KR");
 
-// Firebase 초기화
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// ===== DOM =====
+const form = document.getElementById("wordForm");
+const input = document.getElementById("wordInput");
+const feedback = document.getElementById("feedback");
+const wordEl = document.getElementById("todayWord");
+const themeToggle = document.getElementById("themeToggle");
+const shareBtn = document.getElementById("shareBtn");
 
-// 오늘 날짜 (YYYY-MM-DD)
-function getToday() {
-  return new Date().toISOString().slice(0, 10);
-}
+// ===== 분당 1회 제한 설정 =====
+const LIMIT_TIME = 60 * 1000; // 1분
+const LAST_SUBMIT_KEY = "lastSubmitTime";
 
-// 단어 제출
-async function submitWord() {
-  const input = document.getElementById("wordInput");
+// ===== 엔터 제출 + 제한 =====
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
   const word = input.value.trim();
-  if (word === "") return;
+  if (!word) return;
 
-  const today = getToday();
-  const ref = db.collection("dailyWords").doc(today);
+  const lastTime = localStorage.getItem(LAST_SUBMIT_KEY);
+  const now = Date.now();
 
-  await db.runTransaction(async (transaction) => {
-    const doc = await transaction.get(ref);
-    if (!doc.exists) {
-      transaction.set(ref, { [word]: 1 });
-    } else {
-      const data = doc.data();
-      const count = data[word] || 0;
-      transaction.update(ref, { [word]: count + 1 });
-    }
-  });
+  if (lastTime && now - lastTime < LIMIT_TIME) {
+    const remain = Math.ceil((LIMIT_TIME - (now - lastTime)) / 1000);
+    feedback.textContent = `⏳ ${remain}초 후 다시 입력할 수 있어요`;
+    return;
+  }
 
+  localStorage.setItem(LAST_SUBMIT_KEY, now);
+  localStorage.setItem("todayWord", word);
+
+  showWord(word);
+  feedback.textContent = "오늘의 단어가 기록되었습니다.";
   input.value = "";
+  input.focus();
+});
+
+// ===== 단어 표시 + 애니메이션 =====
+function showWord(word) {
+  wordEl.textContent = word;
+  wordEl.classList.remove("animate");
+  void wordEl.offsetWidth; // 리플로우
+  wordEl.classList.add("animate");
 }
 
-// 실시간으로 오늘의 단어 갱신
-db.collection("dailyWords")
-  .doc(getToday())
-  .onSnapshot((doc) => {
-    if (!doc.exists) {
-      document.getElementById("todayWord").innerText =
-        "오늘의 단어: 없음";
-      document.title = "오늘의 단어";
-      return;
-    }
+// 새로고침 시 유지
+const savedWord = localStorage.getItem("todayWord");
+if (savedWord) showWord(savedWord);
 
-    const data = doc.data();
-    let topWord = "없음";
-    let max = 0;
+// ===== 다크모드 =====
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "dark") document.body.classList.add("dark");
 
-    for (let word in data) {
-      if (data[word] > max) {
-        max = data[word];
-        topWord = word;
-      }
-    }
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  const mode = document.body.classList.contains("dark") ? "dark" : "light";
+  localStorage.setItem("theme", mode);
+});
 
-    document.getElementById("todayWord").innerText =
-      `오늘의 단어: ${topWord}`;
-    document.getElementById("countInfo").innerText =
-      `"${topWord}"가 ${max}번 입력됨`;
-    document.title = topWord;
-  });
+// ===== 공유 기능 =====
+shareBtn.addEventListener("click", () => {
+  const word = localStorage.getItem("todayWord");
+  if (!word) return;
+
+  const text = `오늘의 단어: ${word}`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: "Today's Word",
+      text: text,
+      url: location.href,
+    });
+  } else {
+    navigator.clipboard.writeText(text);
+    feedback.textContent = "단어가 클립보드에 복사되었습니다.";
+  }
+});
