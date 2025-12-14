@@ -1,7 +1,10 @@
+/* ===== 기본 ===== */
 body {
-  font-family: Pretendard, sans-serif;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background: #f7f7f7;
   color: #222;
+  margin: 0;
+  padding: 0;
   text-align: center;
   transition: background 0.3s, color 0.3s;
 }
@@ -11,12 +14,35 @@ body.dark {
   color: #eee;
 }
 
+/* ===== 헤더 ===== */
 header {
   margin-top: 40px;
 }
 
+header h1 {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
+
+#date {
+  font-size: 0.95rem;
+  opacity: 0.7;
+}
+
 #themeToggle {
-  margin-top: 10px;
+  margin-top: 12px;
+  font-size: 1rem;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* ===== 입력 ===== */
+main {
+  margin-top: 40px;
+}
+
+form {
+  margin-bottom: 10px;
 }
 
 input {
@@ -24,31 +50,73 @@ input {
   padding: 12px;
   width: 70%;
   max-width: 320px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
 button {
   padding: 10px 16px;
-  margin-top: 10px;
+  margin-left: 6px;
+  font-size: 1rem;
   cursor: pointer;
+  border-radius: 6px;
+  border: none;
 }
 
+#feedback {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  min-height: 1.2em;
+  opacity: 0.8;
+}
+
+/* ===== 1위 단어 ===== */
 #wordBox {
-  margin: 40px 0;
-  font-size: 2.5rem;
+  margin: 40px 0 20px;
+  font-size: 2.6rem;
   font-weight: 700;
 }
 
 .animate {
-  animation: fadeUp 0.5s ease;
+  animation: fadeUp 0.4s ease;
 }
 
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ===== 랭킹 ===== */
+#rankingSection {
+  margin-top: 30px;
+}
+
+#rankingSection h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+#ranking {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#ranking li {
+  font-size: 1.1rem;
+  margin: 6px 0;
+}
+
+/* ===== 공유 버튼 ===== */
+#shareBtn {
+  margin-top: 30px;
+  font-size: 0.95rem;
+  opacity: 0.9;
 }

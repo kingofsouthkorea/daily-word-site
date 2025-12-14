@@ -2,17 +2,23 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 기본 제목 (JS에서 1위 단어로 실시간 변경됨) -->
   <title>Today's Word</title>
+
+  <!-- CSS 연결 -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>Today’s Word</h1>
+    <h1>Today's Word</h1>
     <p id="date"></p>
     <button id="themeToggle">🌙</button>
   </header>
 
   <main>
+    <!-- 단어 입력 -->
     <form id="wordForm">
       <input
         id="wordInput"
@@ -23,15 +29,25 @@
       <button type="submit">등록</button>
     </form>
 
+    <!-- 안내 메시지 -->
     <p id="feedback"></p>
 
+    <!-- 현재 1위 단어 -->
     <div id="wordBox">
       <span id="todayWord"></span>
     </div>
 
+    <!-- 랭킹 -->
+    <section id="rankingSection">
+      <h2>실시간 랭킹</h2>
+      <ul id="ranking"></ul>
+    </section>
+
+    <!-- 공유 -->
     <button id="shareBtn">공유하기</button>
   </main>
 
+  <!-- JS -->
   <script src="script.js"></script>
 </body>
 </html>
