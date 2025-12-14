@@ -1,39 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>오늘의 단어</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 60px;
-    }
-    input {
-      padding: 10px;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 16px;
-      font-size: 16px;
-      margin-left: 6px;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Today's Word</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header>
+    <h1>Today’s Word</h1>
+    <p id="date"></p>
+    <button id="themeToggle">🌙</button>
+  </header>
 
-  <h1 id="todayWord">오늘의 단어: 없음</h1>
+  <main>
+    <form id="wordForm">
+      <input
+        id="wordInput"
+        type="text"
+        placeholder="오늘을 표현하는 단어는?"
+        autocomplete="off"
+      />
+      <button type="submit">등록</button>
+    </form>
 
-  <input id="wordInput" type="text" placeholder="단어를 입력하세요">
-  <button onclick="submitWord()">제출</button>
+    <p id="feedback"></p>
 
-  <p id="countInfo"></p>
+    <div id="wordBox">
+      <span id="todayWord"></span>
+    </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <button id="shareBtn">공유하기</button>
+  </main>
 
   <script src="script.js"></script>
 </body>

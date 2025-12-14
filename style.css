@@ -1,0 +1,54 @@
+body {
+  font-family: Pretendard, sans-serif;
+  background: #f7f7f7;
+  color: #222;
+  text-align: center;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #121212;
+  color: #eee;
+}
+
+header {
+  margin-top: 40px;
+}
+
+#themeToggle {
+  margin-top: 10px;
+}
+
+input {
+  font-size: 1.2rem;
+  padding: 12px;
+  width: 70%;
+  max-width: 320px;
+}
+
+button {
+  padding: 10px 16px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+#wordBox {
+  margin: 40px 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.animate {
+  animation: fadeUp 0.5s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -11,7 +11,7 @@ const themeToggle = document.getElementById("themeToggle");
 const shareBtn = document.getElementById("shareBtn");
 
 // ===== 분당 1회 제한 설정 =====
-const LIMIT_TIME = 60 * 1000; // 1분
+const LIMIT_TIME = 3 * 1000; // 3초
 const LAST_SUBMIT_KEY = "lastSubmitTime";
 
 // ===== 엔터 제출 + 제한 =====
@@ -26,7 +26,7 @@ form.addEventListener("submit", (e) => {
 
   if (lastTime && now - lastTime < LIMIT_TIME) {
     const remain = Math.ceil((LIMIT_TIME - (now - lastTime)) / 1000);
-    feedback.textContent = `⏳ ${remain}초 후 다시 입력할 수 있어요`;
+    feedback.textContent = `⏳ ${remain}초만 기다려 주세요`;
     return;
   }
 
